@@ -4,10 +4,23 @@ const btnPrev = document.getElementById('btnPrev')
 const btnNext = document.getElementById('btnNext')
 const pokeAbilities = document.getElementById('pokeAbilities')
 const btnAbilities = document.getElementById('btnAbilities')
+const pokeLogo = document.getElementById('pokeLogo')
 
+// Al hacer clic en el logo devuelve un pokemon al azar
+pokeLogo.addEventListener('click', () => {
+    let min = 1;
+    let max = 905;
+
+    let randomPoke = Math.floor(Math.random()*(max-min+1)+min);
+
+    pokeFetch(randomPoke);
+})
+
+// Los botones se mantienen desactivados al iniciar la simulación
 localStorage.setItem('btnPrev', 'true')
 localStorage.setItem('btnNext', 'true')
 localStorage.setItem('btnAbilities', 'true')
+localStorage.setItem('btnTeam', 'true')
 
 if(localStorage.getItem('btnPrev') == 'true'){
     document.getElementById("btnPrev").disabled = true;
@@ -36,12 +49,14 @@ class Pokemon {
 
 let pokemons = []
 
+// Consulto por el localStorage y de no haber lo creo
 if(localStorage.getItem('pokemons')) {
     pokemons = JSON.parse(localStorage.getItem('pokemons'))
 } else {
     localStorage.setItem('pokemons', JSON.stringify(pokemons))
 }
 
+// Colores de fondo para el o los tipos de pokemon
 const typeColors = {
     bug: '#A8B820',
     dark: '#705848',
@@ -63,11 +78,14 @@ const typeColors = {
     water: '#188BE0',
 }
 
+// Tomo el valor ingresado por el usuario
 pokeSearch.addEventListener('submit', (e) => {
     e.preventDefault()
     const pokeChoose = document.getElementById('pokeChoose').value
     pokeFetch(pokeChoose.toLowerCase())
 })
+
+// Consulto la pokeAPI
 function pokeFetch(pokemon) {
     fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon}`)
     .then(resp => resp.json())
@@ -75,25 +93,28 @@ function pokeFetch(pokemon) {
     .catch(error => pokeNotFound())
 }
 
+
 const pokeStorage = (data) => {
     let pokemon = new Pokemon (data.name, data.id, data.sprites.front_default, data.abilities)
     pokemons.unshift(pokemon)
     localStorage.setItem('pokemons', JSON.stringify(pokemons))
 }
 
+// Evento para mostrar los pokemon previos en la pokedex
 btnPrev.addEventListener('click', (e) => {
     e.preventDefault()
     let pokemon = JSON.parse(localStorage.getItem('pokemons'))
     pokeFetch((pokemon[0].id) - 1)
 })
 
+// Evento para mostrar los siguientes pokemon en la pokedex
 btnNext.addEventListener('click', (e) => {
     e.preventDefault()
     let pokemon = JSON.parse(localStorage.getItem('pokemons'))
     pokeFetch((pokemon[0].id) + 1)
 })
 
-
+// Devuelvo la card con los datos del pokemon
 const pokeInfo = (data) => {
     pokeStorage(data)
     const sprite = data.sprites.other.dream_world.front_default
@@ -107,6 +128,8 @@ const pokeInfo = (data) => {
     const statsAtkSp = data.stats[3].base_stat
     const statsDefSp = data.stats[4].base_stat
     const statsSpd = data.stats[5].base_stat
+
+    const baseExp = data.base_experience
 
     if(data.types[1] == undefined) {
         pokeCard.innerHTML = `
@@ -146,6 +169,10 @@ const pokeInfo = (data) => {
                             <tr class="table-active">
                                 <th scope="row">SPEED</th>
                                 <td>${statsSpd}</td>
+                            </tr>
+                            <tr class="table-active">
+                                <th scope="row">EXP BASE</th>
+                                <td>${baseExp}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -194,6 +221,10 @@ const pokeInfo = (data) => {
                                     <th scope="row">SPEED</th>
                                     <td>${statsSpd}</td>
                                 </tr>
+                                <tr class="table-active">
+                                    <th scope="row">EXP BASE</th>
+                                    <td>${baseExp}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -207,7 +238,12 @@ const pokeInfo = (data) => {
     btnAbilities.disabled = false
 }
 
+// En caso de ingresar id o nombre incorrecto
 function pokeNotFound () {
+    pokeAbilities.innerHTML = ''
+    btnPrev.disabled = true
+    btnNext.disabled = true
+    btnAbilities.disabled = true
     pokeCard.innerHTML = `
         <div class="container"> 
             <div class="card text-white bg-primary mb-3">
@@ -223,6 +259,7 @@ function pokeNotFound () {
     `
 }
 
+// Muestro la habilidad del pokemon
 btnAbilities.addEventListener('click', (e) => {
     e.preventDefault()
     pokeAbilities.innerHTML = ''
@@ -231,7 +268,7 @@ btnAbilities.addEventListener('click', (e) => {
     pokeAbilities.innerHTML = `
     <table class="table table-hover">
         <tbody>
-            <tr class="table-active">
+            <tr id="descripAbility" class="table-active">
                 <th scope="row">ABILITY</th>
                 <td>${abilities.toUpperCase()}</td>
             </tr>

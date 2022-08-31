@@ -3,13 +3,21 @@
     padding: 0;
 }
 
-
 .container {
     text-align: center;
-    max-width: 25rem;
+    max-width: 30rem;
     margin-bottom: 25px;
     border-radius: 25px;
     justify-content: center;
+}
+
+a img {
+    width: 3rem;
+    height: 3rem;
+}
+
+#pokeChoose {
+    width: 12rem;
 }
 
 #botons {
@@ -30,8 +38,14 @@
     padding: 20px;
 }
 
-
 th {
     text-align: left;
 }
+
+td {
+    text-align: right;
+}
+
+
+
 
